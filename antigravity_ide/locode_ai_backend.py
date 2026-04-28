@@ -63,24 +63,26 @@ def _build_system_prompt(mode: str, has_file: bool) -> str:
     if mode == "modify":
         instructions = (
             "OUTPUT RULES:\n"
-            "1. Output ONLY the complete, corrected or modified code in a single markdown codeblock (e.g. ```python).\n"
+            "1. Output ONLY the complete, corrected or modified code. Do NOT use markdown codeblocks (```) unless specifically asked.\n"
             "2. Do NOT output the entire file unless you changed more than half of it. Output only the modified function/block.\n"
-            "3. Do NOT provide any explanation or text outside the codeblock.\n"
+            "3. Do NOT provide any explanation, conversational text, or backticks outside the code.\n"
             "4. If the user asks a question rather than requesting a change, answer in plain text.\n"
         )
     elif mode == "rewrite":
         instructions = (
             "OUTPUT RULES:\n"
-            "1. Output a COMPLETE, production-ready rewrite of the entire file in a single markdown codeblock.\n"
-            "2. Preserve all existing functionality unless the user explicitly asks to remove it.\n"
-            "3. Do NOT provide explanations or conversational text. Output ONLY the codeblock.\n"
+            "1. Output a COMPLETE, production-ready rewrite of the entire file.\n"
+            "2. Do NOT use markdown codeblocks (```) or triple quotes ('''). Output RAW code only.\n"
+            "3. Preserve all existing functionality unless the user explicitly asks to remove it.\n"
+            "4. Do NOT provide explanations or conversational text. Output ONLY the raw code.\n"
         )
     else:  # chat
         instructions = (
             "OUTPUT RULES:\n"
             "1. Write requested code modifications or new code in standard markdown codeblocks (e.g. ```dart).\n"
             "2. ONLY output the code that needs to be inserted, replaced, or written. Do NOT output the entire file unless explicitly requested.\n"
-            "3. DO NOT provide any explanation or conversational text unless the user explicitly asks for one.\n"
+            "3. Ensure the code inside the block does NOT contain triple backticks or triple quotes itself.\n"
+            "4. DO NOT provide any explanation or conversational text unless the user explicitly asks for one.\n"
         )
 
     return base + instructions

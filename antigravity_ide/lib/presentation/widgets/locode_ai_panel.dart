@@ -559,7 +559,8 @@ class _LocodeAiPanelState extends State<LocodeAiPanel>
   // ── CODE PARSER ───────────────────────────────────────────────────────
   List<Map<String, String>> _parseMessage(String text) {
     final List<Map<String, String>> segments = [];
-    final regex = RegExp(r'```(\w*)\n([\s\S]*?)```');
+    // Flexible regex for ``` or ''' blocks
+    final regex = RegExp(r'(?:```|\'\'\')(\w*)[\n\s]*([\s\S]*?)(?:```|\'\'\')');
     int lastEnd = 0;
 
     for (final match in regex.allMatches(text)) {
@@ -567,10 +568,12 @@ class _LocodeAiPanelState extends State<LocodeAiPanel>
         final t = text.substring(lastEnd, match.start).trim();
         if (t.isNotEmpty) segments.add({'type': 'text', 'content': t});
       }
+      
+      final rawContent = match.group(2) ?? '';
       segments.add({
         'type': 'code',
         'lang': match.group(1) ?? '',
-        'content': match.group(2) ?? '',
+        'content': _sanitizeCode(rawContent),
       });
       lastEnd = match.end;
     }
@@ -582,5 +585,15 @@ class _LocodeAiPanelState extends State<LocodeAiPanel>
 
     if (segments.isEmpty) segments.add({'type': 'text', 'content': text});
     return segments;
+  }
+
+  String _sanitizeCode(String code) {
+    String s = code.trim();
+    // Double check to strip any leaked markers or language tags
+    if (s.startsWith('```')) s = s.replaceFirst(RegExp(r'^```\w*\s*'), '');
+    if (s.endsWith('```')) s = s.substring(0, s.length - 3);
+    if (s.startsWith("'''")) s = s.replaceFirst(RegExp(r"^'''\w*\s*"), '');
+    if (s.endsWith("'''")) s = s.substring(0, s.length - 3);
+    return s.trim();
   }
 }

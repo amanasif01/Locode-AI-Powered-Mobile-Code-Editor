@@ -380,10 +380,41 @@ class _EditorScreenState extends State<EditorScreen> {
           const SizedBox(height: 20),
           TextField(autofocus: true, style: const TextStyle(color: Colors.white), decoration: const InputDecoration(hintText: 'Filename...', hintStyle: TextStyle(color: Colors.white24)), onChanged: (v) => name = v),
           const SizedBox(height: 20),
-          ElevatedButton(onPressed: () { Navigator.pop(ctx); _createNewFile(name.isEmpty ? 'untitled' : name, ext); }, child: const Text('CREATE')),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _extChip('py', ext, (v) => setSt(() => ext = v)),
+              const SizedBox(width: 8),
+              _extChip('c', ext, (v) => setSt(() => ext = v)),
+              const SizedBox(width: 8),
+              _extChip('cpp', ext, (v) => setSt(() => ext = v)),
+            ],
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00FFFF), foregroundColor: Colors.black),
+            onPressed: () { Navigator.pop(ctx); _createNewFile(name.isEmpty ? 'untitled' : name, ext); }, 
+            child: const Text('CREATE')
+          ),
         ]),
       ),
     )));
+  }
+
+  Widget _extChip(String label, String current, Function(String) onSelect) {
+    final bool active = label == current;
+    return GestureDetector(
+      onTap: () => onSelect(label),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: active ? const Color(0xFF00FFFF).withOpacity(0.2) : Colors.white10,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: active ? const Color(0xFF00FFFF) : Colors.white24),
+        ),
+        child: Text(label.toUpperCase(), style: TextStyle(color: active ? const Color(0xFF00FFFF) : Colors.white60, fontSize: 10, fontWeight: FontWeight.bold)),
+      ),
+    );
   }
 
   void _createNewFile(String name, String ext) {
