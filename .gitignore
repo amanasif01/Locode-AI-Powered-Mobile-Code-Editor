@@ -16,6 +16,9 @@ antigravity_ide/__pycache__/
 antigravity_ide/*.log
 antigravity_ide/.idea/
 antigravity_ide/*.iml
+antigravity_ide/.env
+antigravity_ide/lib/secrets.dart
+
 
 # OS specific
 .DS_Store

@@ -20,6 +20,17 @@ from typing import Optional
 from fastapi.middleware.cors import CORSMiddleware
 import httpx
 
+# ── Load .env manually if it exists ──────────────────────────────────────────
+def load_env():
+    env_path = os.path.join(os.path.dirname(__file__), ".env")
+    if os.path.exists(env_path):
+        with open(env_path, "r") as f:
+            for line in f:
+                if "=" in line:
+                    key, value = line.strip().split("=", 1)
+                    os.environ[key] = value
+load_env()
+
 app = FastAPI(title="Locode AI Backend – Llama 3 Online")
 
 app.add_middleware(

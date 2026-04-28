@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
+import '../../secrets.dart';
 
 class ChatMessage {
   final String text;
@@ -49,8 +50,8 @@ class _LocodeAiPanelState extends State<LocodeAiPanel>
   double _savedScrollOffset = 0.0;
   bool _includeContext = true;
 
-  // Groq API key (Redacted)
-  final String _groqApiKey = const String.fromEnvironment('GROQ_API_KEY', defaultValue: '');
+  // Groq API key (Redacted from Git, loaded from secrets.dart or --dart-define)
+  final String _groqApiKey = groqApiKey.isNotEmpty ? groqApiKey : const String.fromEnvironment('GROQ_API_KEY', defaultValue: '');
 
   late AnimationController _fadeController;
 
