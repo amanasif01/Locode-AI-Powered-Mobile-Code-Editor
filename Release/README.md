@@ -45,7 +45,20 @@ Locode is built using a sophisticated multi-tier architecture to balance perform
 
 ## 🛡️ Security & Privacy
 
-Locode values your privacy. Your code remains on your device, and local execution happens in a sandboxed environment to ensure your data stays secure.
+Locode values your privacy:
+*   **On-Device Persistence:** Your AI chat history is stored locally on your device using encrypted-safe shared preferences. 
+*   **Privacy First:** Deleting a chat session permanently wipes it from your local storage.
+*   **Secure API Access:** Locode uses a tiered secret management system to ensure your API keys are never leaked to public repositories while maintaining seamless functionality on your device.
+*   **Sandboxed Execution:** Local code execution happens in a secure, isolated environment to ensure your data stays private.
+
+---
+
+## 🤖 Persistent AI History
+
+Locode AI now features a full-scale session management system:
+*   **Multiple Chats:** Create separate chat sessions for different projects or tasks.
+*   **Tabbed Interface:** Easily switch between your "Current Chat" and your "All Chats" history.
+*   **Deep Persistence:** Your conversations are saved automatically and remain available even after app restarts.
 
 ---
 

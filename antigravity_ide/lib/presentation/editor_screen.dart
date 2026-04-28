@@ -327,7 +327,14 @@ class _EditorScreenState extends State<EditorScreen> {
 
   void _applyAiCode(String code) { setState(() { _nativeController.text = code; if (hasActiveFile) _openFiles[_activeFileIndex].content = code; }); }
   void _replaceAiCode(String code) { _applyAiCode(code); }
-  void _enterDiffReview(String suggestion) { setState(() { _suggestionCandidate = suggestion; _isDiffReviewing = true; }); }
+  void _enterDiffReview(String suggestion) { 
+    String sanitized = suggestion.trim();
+    if (sanitized.startsWith('```')) sanitized = sanitized.replaceFirst(RegExp(r'^```\w*\s*'), '');
+    if (sanitized.endsWith('```')) sanitized = sanitized.substring(0, sanitized.length - 3);
+    if (sanitized.startsWith("'''")) sanitized = sanitized.replaceFirst(RegExp(r"^'''\w*\s*"), '');
+    if (sanitized.endsWith("'''")) sanitized = sanitized.substring(0, sanitized.length - 3);
+    setState(() { _suggestionCandidate = sanitized.trim(); _isDiffReviewing = true; }); 
+  }
   void _pasteFromClipboard() async { final data = await Clipboard.getData('text/plain'); if (data?.text != null) { _nativeController.text = _nativeController.text + data!.text!; } }
 
   void _showFileMenu() {
