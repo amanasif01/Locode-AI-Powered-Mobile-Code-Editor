@@ -12,9 +12,9 @@ Locode isn't just a text editor; it's a complete development ecosystem. Unlike o
 ### 💎 Key Features
 
 *   **⚡ Native Performance Editor:** A custom-built Flutter code editor with low-latency input and intelligent syntax highlighting for C, C++, and Python.
-*   **🤖 Locode AI Assistant:** A floating, non-intrusive AI chat that can generate code, explain complex logic, and perform **Side-by-Side Diff Reviews**. You can review AI suggestions and apply them with a single tap.
+*   **🤖 Locode AI Assistant:** A floating, non-intrusive AI chat that can generate code, explain complex logic, and perform **Side-by-Side Diff Reviews**. Integrated with state-of-the-art online LLMs for intelligent refactoring.
 *   **🖥️ Integrated Terminal:** A fixed, professional-grade terminal that supports real-time stdin/stdout, allowing you to interact with your code as it runs.
-*   **⚙️ Local Execution Engine:** Run your code directly on your device using Locode's isolated compiler service. No cloud required for core logic.
+*   **⚙️ Local Execution Engine:** Run your code directly on your device using Locode's isolated compiler service (WASM).
 *   **📂 Professional File Management:** Full support for local disk access, "Save As" functionality, and a smart "Recent Files" system to keep your workflow organized.
 *   **🌓 Adaptive UI:** Sleek Glassmorphism design with a high-contrast dark mode and a professional light mode, featuring theme-aware branding.
 *   **🛠️ Smart UX:** Adaptive panels that automatically collapse when you start typing to maximize your screen real estate.
