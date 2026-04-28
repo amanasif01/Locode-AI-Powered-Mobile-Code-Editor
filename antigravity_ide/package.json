@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@yowasp/clang": "^22.0.0-git20542-10",
+    "skulpt": "^1.2.0"
+  }
+}

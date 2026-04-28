@@ -1,0 +1,22 @@
+# Workspace Ignores
+flutter_sdk/
+sandbox/
+*.apk
+models/
+
+# Antigravity IDE Ignores
+antigravity_ide/.dart_tool/
+antigravity_ide/.flutter-plugins-dependencies
+antigravity_ide/.pub-cache/
+antigravity_ide/.pub/
+antigravity_ide/build/
+antigravity_ide/node_modules/
+antigravity_ide/ios/Flutter/.last_build_id
+antigravity_ide/__pycache__/
+antigravity_ide/*.log
+antigravity_ide/.idea/
+antigravity_ide/*.iml
+
+# OS specific
+.DS_Store
+Thumbs.db

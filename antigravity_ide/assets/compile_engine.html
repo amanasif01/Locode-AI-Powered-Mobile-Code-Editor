@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Locode Offline Engine</title>
+  <script>
+    const WORKER_PATHS = {
+      py: "/web/pyodide_worker.js",
+      py_online: "/web/py_online_worker.js",
+      c: "/web/c_worker.js",
+      cpp: "/web/cpp_worker.js",
+    };
+    const WORKER_TYPES = {
+      py: "classic",
+      py_online: "classic",
+      c: "module",
+      cpp: "module",
+    };
+
+    const workers = {};
+    const sessions = {};
+    const ready = { py: false, py_online: false, c: true, cpp: true };
+    const pending = {};
+    const runTimeouts = {};
+    let pyInitTimeout = null;
+
+    function send(type, data, session, ext) {
+      const message = JSON.stringify({ type, data, session, ext });
+      if (window.CompilerChannel && typeof window.CompilerChannel.postMessage === "function") {
+        window.CompilerChannel.postMessage(message);
+      }
+    }
+
+    function ensureWorker(ext) {
+      if (workers[ext]) return true;
+      const path = WORKER_PATHS[ext];
+      if (!path) {
+        send("stderr", "Unsupported language: ." + ext + "\n", sessions[ext] ?? -1, ext);
+        send("done", "", sessions[ext] ?? -1, ext);
+        return false;
+      }
+
+      try {
+        const pathWithCache = WORKER_PATHS[ext] + '?v=' + Date.now();
+        const workerType = WORKER_TYPES[ext] || "classic";
+        const worker = workerType === "module"
+          ? new Worker(pathWithCache, { type: "module" })
+          : new Worker(pathWithCache);
+        workers[ext] = worker;
+        
+
+        worker.onmessage = (event) => {
+          let msg = event.data;
+          if (typeof msg === "string") {
+            try { msg = JSON.parse(msg); } catch (_) { msg = null; }
+          }
+          if (!msg) {
+            send("stderr", "Invalid worker response for ." + ext + "\n", sessions[ext] ?? -1, ext);
+            send("done", "", sessions[ext] ?? -1, ext);
+            return;
+          }
+
+          const type = msg.type || "";
+          const data = msg.data ?? "";
+          const session = msg.session ?? -1;
+
+          if (type === "ready") {
+            ready[ext] = true;
+            if (ext === "py" || ext === "py_online") {
+                if (pyInitTimeout) {
+                    clearTimeout(pyInitTimeout);
+                    pyInitTimeout = null;
+                }
+            }
+            send("ready", ext + " Ready", 0, ext);
+            if (pending[ext]) {
+              worker.postMessage(pending[ext]);
+              delete pending[ext];
+            }
+            return;
+          }
+
+          if (type === "input_request") {
+            send("input_request", "", session, ext);
+            return;
+          }
+
+          if (type === "stdout" || type === "stderr" || type === "done") {
+            if (type === "done" && runTimeouts[ext]) {
+              clearTimeout(runTimeouts[ext]);
+              delete runTimeouts[ext];
+            }
+            send(type, String(data), session, ext);
+          }
+        };
+
+        worker.onerror = (err) => {
+          const s = sessions[ext] ?? -1;
+          send("stderr", "Worker crashed for ." + ext + ": " + (err.message || "unknown") + "\n", s, ext);
+          send("done", "", s, ext);
+        };
+
+        return true;
+      } catch (err) {
+        const s = sessions[ext] ?? -1;
+        send("stderr", "Worker load failed for ." + ext + ": " + err + "\n", s, ext);
+        send("done", "", s, ext);
+        return false;
+      }
+    }
+
+    function runCode(ext, code, session, stdin, online) {
+      let targetExt = ext;
+      if (ext === "py" && online) {
+        targetExt = "py_online";
+      }
+      
+      sessions[targetExt] = session;
+      if (!ensureWorker(targetExt)) return;
+
+      const payload = { code, session, stdin };
+      
+      if ((targetExt === "py" || targetExt === "py_online") && !ready[targetExt]) {
+        pending[targetExt] = payload;
+        const label = targetExt === "py" ? "Python Light" : "Python Online";
+        send("stdout", `${label} runtime is initializing. Run queued...\n`, session, ext);
+        return;
+      }
+
+      if (targetExt !== 'py' && targetExt !== 'py_online') {
+        if (runTimeouts[targetExt]) clearTimeout(runTimeouts[targetExt]);
+        runTimeouts[targetExt] = setTimeout(() => {
+          if (sessions[targetExt] !== session) return;
+          send("stderr", `Execution timeout for .${ext}; force-stopping run.\n`, session, ext);
+          send("done", "", session, ext);
+        }, 30000);
+      }
+      workers[targetExt].postMessage(JSON.stringify(payload));
+    }
+
+    function stopCode(ext) {
+      ["py", "py_online"].forEach(target => {
+        if (!workers[target]) return;
+        workers[target].terminate();
+        delete workers[target];
+        delete sessions[target];
+        delete pending[target];
+        ready[target] = false;
+      });
+      
+      if (workers[ext] && ext !== "py") {
+          workers[ext].terminate();
+          delete workers[ext];
+          delete sessions[ext];
+          delete pending[ext];
+      }
+
+      send("stdout", "Execution stopped by user.\n", -1, ext);
+      send("done", "", -1, ext);
+    }
+
+    function writeStdin(ext, data) {
+       if (workers[ext]) workers[ext].postMessage(JSON.stringify({ type: 'stdin', data: data }));
+       if (ext === "py" && workers["py_online"]) workers["py_online"].postMessage(JSON.stringify({ type: 'stdin', data: data }));
+    }
+
+    window.onload = () => send("system", "Engine Init", 0, "engine");
+  </script>
+</head>
+<body style="background:#0a0a0a;color:#00ff88;font-family:monospace;padding:12px;">
+  <p>Locode offline engine ready.</p>
+</body>
+</html>
