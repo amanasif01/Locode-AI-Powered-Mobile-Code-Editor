@@ -560,7 +560,7 @@ class _LocodeAiPanelState extends State<LocodeAiPanel>
   List<Map<String, String>> _parseMessage(String text) {
     final List<Map<String, String>> segments = [];
     // Flexible regex for ``` or ''' blocks
-    final regex = RegExp(r'(?:```|\'\'\')(\w*)[\n\s]*([\s\S]*?)(?:```|\'\'\')');
+    final regex = RegExp(r"(?:```|''')(\w*)[\n\s]*([\s\S]*?)(?:```|''')");
     int lastEnd = 0;
 
     for (final match in regex.allMatches(text)) {
